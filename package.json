@@ -1,0 +1,19 @@
+{
+  "name": "find-your-cricket-bros",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.14.0",
+    "validator": "^13.15.0"
+  }
+}
