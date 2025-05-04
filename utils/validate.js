@@ -35,4 +35,52 @@ const validateSignupData = (req) => {
     }
 }
 
-module.exports = validateSignupData;
+const validateUserProfileData = (req) => {
+    const updationData = req.body;
+    const allowedEditFields = [
+        "firstName",
+        "lastName",
+        "gender",
+        "emailId",
+        "age",
+        "skills",
+        "about",
+        "photoURL"
+    ]
+
+    
+    const isEditAllowed = Object.keys(updationData).every((k) => allowedEditFields.includes(k));
+    if (!isEditAllowed) {
+        throw new Error("Updation data is Invalid");
+    }
+
+    if (!isEditAllowed) {
+        throw new Error("Updation data contains invalid fields");
+    }
+
+    // Individual field validations
+    if (updationData.skills && updationData.skills.length > 10) {
+        throw new Error("Skills cannot be more than 10");
+    }
+
+    if (updationData.emailId && !validator.isEmail(updationData.emailId)) {
+        throw new Error("Your email format is not valid");
+    }
+
+    if (updationData.about && updationData.about.trim().split(/\s+/).length > 100) {
+        throw new Error("About section should not be greater than 100 words");
+    }
+
+    if (updationData.age && updationData.age < 15) {
+        throw new Error("You are too young!");
+    }
+
+    
+
+    return isEditAllowed;
+
+}
+module.exports = {
+    validateSignupData,
+    validateUserProfileData
+}
