@@ -1,4 +1,6 @@
 const validator = require('validator');
+const bcrypt = require("bcrypt");
+const { userAuth } = require("../middleware/auth.js");
 
 const validateSignupData = (req) => {
     const {
@@ -80,7 +82,13 @@ const validateUserProfileData = (req) => {
     return isEditAllowed;
 
 }
+
+
+
+
+
 module.exports = {
     validateSignupData,
-    validateUserProfileData
+    validateUserProfileData,
+   
 }

@@ -3,7 +3,8 @@ const authRouter = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require("../models/user.js");
 const bcrypt = require('bcrypt');
-const validateSignupData = require("../utils/validate.js");
+const { validateSignupData } = require("../utils/validate.js");
+
 
 
 
@@ -26,7 +27,7 @@ authRouter.post('/signup', async (req, res) => {
     } = req.body;
     try {
         //validate userSignupData
-        validateSignupData;
+        validateSignupData(req);
 
         //hashing the password
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -46,7 +47,9 @@ authRouter.post('/signup', async (req, res) => {
             photoURL
         }
         )
+        await user.validate();
         await user.save();
+        
         res.status(200).send("Signup success")
         
     } catch (err) {
@@ -58,6 +61,7 @@ authRouter.post('/signup', async (req, res) => {
 //login api
 authRouter.post('/login', async (req, res) => {
     try {
+        console.log("Login API hit", req.body);
         const { emailId, password } = req.body;
         const user = await User.findOne({ emailId: emailId });
         if (!user) {
@@ -69,7 +73,7 @@ authRouter.post('/login', async (req, res) => {
         } else {
             const token = await user.getJWT();
             res.cookie("token", token, { expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) });
-            res.status(200).send("Login Successfull");
+            res.status(200).send(user);
            
             
         }

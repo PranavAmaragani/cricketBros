@@ -4,12 +4,19 @@ const app = express();
 const cookieParser = require('cookie-parser');
 const { authRouter } = require("./routers/auth.js");
 const { profileRouter } = require("./routers/profile.js");
+const {requestRouter} = require("./routers/requests.js")
+const cors = require('cors')
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}))
 
 app.use("/", authRouter);
 app.use("/", profileRouter);
+app.use("/",requestRouter)
 
 app.get("/", (req, res) => {
     res.send("hello")
@@ -25,8 +32,8 @@ app.get("/", (req, res) => {
 //connecting to Database
 connectDB().then(() => {
     console.log("Database Connected Successfully");
-    app.listen(3000, () => {
-        console.log("App is listening on 3000 port!")
+    app.listen(8888, () => {
+        console.log("App is listening")
     })
 
 }).catch((err) => {
