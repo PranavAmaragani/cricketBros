@@ -6,10 +6,10 @@ const userAuth = async (req, res, next) => {
         
         const { token } = req.cookies;
         if (!token) {
-            throw new Error("Invalid Token")
+            return res.status(401).send("Please Login!")
         }
         const decodedObj = jwt.verify(token, "CricketBros@1845");
-        // console.log(decodedObj);
+        
         const { _id } = decodedObj;
         const user = await User.findById(_id);
         if (!user) {
