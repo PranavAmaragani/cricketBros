@@ -21,7 +21,7 @@ authRouter.post("/signup", async (req, res) => {
     skills,
     about,
     photoURL,
-    location //added
+    location, //added
   } = req.body;
   try {
     const existingEmail = await User.findOne({
@@ -42,7 +42,6 @@ authRouter.post("/signup", async (req, res) => {
 
     //hashing the password
     const hashedPassword = await bcrypt.hash(password, 10);
-    
 
     //saving the user data into mongoose collection
     const user = new User({
@@ -56,7 +55,7 @@ authRouter.post("/signup", async (req, res) => {
       skills,
       about,
       photoURL,
-      location//added
+      location, //added
     });
     await user.validate();
     await user.save();
@@ -70,7 +69,6 @@ authRouter.post("/signup", async (req, res) => {
 //login api
 authRouter.post("/login", async (req, res) => {
   try {
-   
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId: emailId });
     if (!user) {
@@ -78,7 +76,7 @@ authRouter.post("/login", async (req, res) => {
     }
     const isPasswordValid = await user.validatePassword(password);
     if (!isPasswordValid) {
-      throw new Error("Invalid Credentials")
+      throw new Error("Invalid Credentials");
     } else {
       const token = await user.getJWT();
       res.cookie("token", token, {
@@ -87,7 +85,7 @@ authRouter.post("/login", async (req, res) => {
       res.status(200).send(user);
     }
   } catch (error) {
-    res.status(400).send("Error!"+error.message);
+    res.status(400).json({ message: error.message });
   }
 });
 

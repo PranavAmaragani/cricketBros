@@ -45,8 +45,6 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
       .populate("fromUserId", USER_SAFE_DATA)
       .populate("toUserId", USER_SAFE_DATA);
 
-    
-
     const data = connections.map((row) => {
       if (row.fromUserId._id.toString() === loggedInUserId.toString()) {
         return row.toUserId;
@@ -59,34 +57,6 @@ userRouter.get("/user/connections", userAuth, async (req, res) => {
     });
   } catch (error) {
     res.status(400).send("Error! " + error.message);
-  }
-});
-
-//changed
-userRouter.post("/user/location", userAuth, async (req, res) => {
-  try {
-    const { latitude, longitude } = req.body;
-    const userId = req.user._id;
-
-    const location = {
-      type: "Point",
-      coordinates: [longitude, latitude],
-    };
-
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: { location } },
-      { new: true }
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json({ message: "Location updated successfully", user: updatedUser });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -126,6 +96,71 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     res.status(400).json({
       message: error,
     });
+  }
+});
+
+// location tracker route
+userRouter.put("/user/update-location", userAuth, async (req, res) => {
+  const { lat, lng } = req.body;
+  const userId = req.user._id;
+
+  if (!lat || !lng) {
+    return res
+      .status(400)
+      .json({ error: "Latitude and longitude are required" });
+  }
+
+  try {
+    await User.findByIdAndUpdate(userId, {
+      location: {
+        type: "Point",
+        coordinates: [lng, lat], // Important: GeoJSON format
+      },
+    });
+
+
+    res.json({ message: "📍 Location updated successfully" });
+  } catch (err) {
+    console.error("Failed to update location:", err);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+  
+});
+
+//nearby users route
+userRouter.get("/nearby", userAuth, async (req, res) => {
+  try {
+    const loggedInUser = await User.findById(req.user._id);
+
+    if (
+      !loggedInUser ||
+      !loggedInUser.location ||
+      !loggedInUser.location.coordinates
+    ) {
+      return res
+        .status(400)
+        .json({ error: "Location not set for current user" });
+    }
+
+    const [lng, lat] = loggedInUser.location.coordinates;
+
+    const nearbyUsers = await User.find({
+      _id: { $ne: req.user._id }, // Exclude current user
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [lng, lat],
+          },
+          $maxDistance: 10000, // 10 km
+        },
+      },
+    }).select("firstName userName photoURL location");
+
+    res.json({ users: nearbyUsers });
+  } catch (err) {
+    console.error("Nearby users error:", err);
+    res.status(500).json({ error: "Failed to fetch nearby users" });
   }
 });
 

@@ -20,7 +20,8 @@ profileRouter.get("/profile/view", userAuth, async (req, res) => {
 });
 
 //edit profile api
-profileRouter.patch("/profile/edit", userAuth, async (req, res) => {
+profileRouter.put("/profile/edit", userAuth, async (req, res) => {
+  
   try {
     if (!validateUserProfileData(req)) {
       throw new Error("Invalid Edit Request!");
